@@ -1,7 +1,8 @@
-require('./config/config');
+const {PORT, DATABASE_LOCAL} = require('./config/config')
 
 const express = require('express');
 const bodyParse = require('body-parser');
+const mongoos = require('mongoose');
 const app = express();
 
 //Configuracion de entrada de informacion
@@ -9,38 +10,13 @@ app.use(bodyParse.urlencoded({ extended: false }));
 
 app.use(bodyParse.json());
 
+app.use(require('./routes/usuario'));
 
-app.get('/usuario', function(req, res){
-    res.json('get usuario');
-});
+//Conexion a la base de datos MongoDB
+mongoos.connect(DATABASE_LOCAL,{useNewUrlParser: true, useCreateIndex: true})
+.then( db => console.log('Base de datos conectada con exito'))
+.catch( err => console.log('ERROR: No pudo conectarse a la base de datos, e:'+err))
 
-app.post('/usuario', function(req, res){
-    let body = req.body;
-
-    if(body.nombre==undefined){
-        res.status(400).json({
-            ok: false,
-            mensaje:'El nombre es necesario'
-        });
-    }else{
-        res.json({
-            usuario: body
-        });
-    }
-});
-
-app.put('/usuario/:id', function(req, res){
-    let id = req.params.id;
-
-    res.json({
-        id
-    });
-});
-
-app.delete('/usuario', function(req, res){
-    res.json('delete usuario');
-});
-
-app.listen(process.env.PORT, () =>{
-    console.log('Servidor corriendo en puerto', process.env.PORT);
+app.listen(PORT, () =>{
+    console.log('Servidor corriendo en puerto', PORT);
 })
